@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Message = exports.Conversation = exports.Contact = exports.Tenant = void 0;
+var tenant_entity_1 = require("./tenant.entity");
+Object.defineProperty(exports, "Tenant", { enumerable: true, get: function () { return tenant_entity_1.Tenant; } });
+var contact_entity_1 = require("./contact.entity");
+Object.defineProperty(exports, "Contact", { enumerable: true, get: function () { return contact_entity_1.Contact; } });
+var conversation_entity_1 = require("./conversation.entity");
+Object.defineProperty(exports, "Conversation", { enumerable: true, get: function () { return conversation_entity_1.Conversation; } });
+var message_entity_1 = require("./message.entity");
+Object.defineProperty(exports, "Message", { enumerable: true, get: function () { return message_entity_1.Message; } });

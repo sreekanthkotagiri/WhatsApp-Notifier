@@ -1,0 +1,20 @@
+EAAVyyjRdfdkBQrvM1ZBfSbgI8ZAE1sp5gHPq22zUw4ZCz9uzIWZAAVpI9hBzxLPLNMBwqB5joeYkDeVhIq2mnO3zC6ISKUFawQwxrZCpFJFerhUwP6TvT7YjmAoceFlUBAQbZBZB8wV0uvrx1oulAKfy18tUk0rDvvImZCofL50F98KE50W06t6cKutraRc1NLpAiJVnxlFXUb3eOmVNlrgntielCIVrqGX4uJ97Dk97flCuKRuEqKooFlGP3BYthtbFz4rRAlzjxUu0NdLJIRj66LMZB
+
+Permanent token:
+EAAVyyjRdfdkBQuM6ZCyOY81ZB5p6swoycHSTeeo6ZAaZCGji4dblVGZCUimpHZBJDZACqVW3sojcdqnzjzN6eJkHnDdxkBeHzt4Ok6PaIoHwTorPXa4vBZCYpMvPVZByZAiJXGEDXE1iCWAbOhpZBtjRJLOwIztYG5CcCqcWD0dIDUvK4R8DZCyeVTeNjejwcW2ffgkBKAZDZD
+
+
+Test number: +1 555 166 6945
+Phone number ID: 1014586885069018
+WhatsApp Business Account ID: 764133562988761
+
+
+curl -i -X POST `
+  https://graph.facebook.com/v22.0/1014586885069018/messages `
+  -H 'Authorization: Bearer <access token>' `
+  -H 'Content-Type: application/json' `
+  -d '{ \"messaging_product\": \"whatsapp\", \"to\": \"\", \"type\": \"template\", \"template\": { \"name\": \"hello_world\", \"language\": { \"code\": \"en_US\" } } }'
+
+
+C:\Users\Sreekanth\AppData\Local/ngrok/ngrok.yml
+ngrok config add-authtoken 39hZrkLFAJhyGttBJtxKQToVHWA_7pmiGLnejeUAhYfjRojyz
