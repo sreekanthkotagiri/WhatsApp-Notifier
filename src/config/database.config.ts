@@ -1,18 +1,40 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
 
-export const getDatabaseConfig = (
-  configService: ConfigService,
-): TypeOrmModuleOptions => ({
-  type: 'postgres',
-  host: configService.get<string>('DB_HOST', 'localhost'),
-  port: configService.get<number>('DB_PORT', 5432),
-  username: configService.get<string>('DB_USERNAME', 'postgres'),
-  password: configService.get<string>('DB_PASSWORD', 'postgres'),
-  database: configService.get<string>('DB_NAME', 'whatsapp_automation'),
-  entities: [__dirname + '/../database/entities/**/*{.ts,.js}'],
-  synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
-  logging: configService.get<boolean>('DB_LOGGING', false),
-  migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-  migrationsRun: true,
-});
+const toBoolean = (value: string | undefined, defaultValue: boolean): boolean => {
+  if (value === undefined) {
+    return defaultValue;
+  }
+  return value.toLowerCase() === 'true';
+};
+
+export const getDatabaseConfig = (): TypeOrmModuleOptions => {
+  const dbHost = process.env.DB_HOST || 'localhost';
+  const dbPort = parseInt(process.env.DB_PORT || '5432', 10);
+  const dbUsername = process.env.DB_USERNAME || 'postgres';
+  const dbPassword = String(process.env.DB_PASSWORD ?? 'postgres');
+  const dbName = process.env.DB_NAME || 'whatsapp_automation';
+  const dbSsl = toBoolean(process.env.DB_SSL, false);
+  const dbSynchronize = toBoolean(process.env.DB_SYNCHRONIZE, false);
+  const dbLogging = toBoolean(process.env.DB_LOGGING, false);
+
+  return {
+    type: 'postgres',
+    host: dbHost,
+    port: dbPort,
+    username: dbUsername,
+    password: dbPassword,
+    database: dbName,
+    synchronize: dbSynchronize,
+    logging: dbLogging,
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+    migrationsRun: toBoolean(process.env.DB_MIGRATIONS_RUN, false),
+    ...(dbSsl
+      ? {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }
+      : {}),
+  };
+};
