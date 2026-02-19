@@ -1,12 +1,14 @@
-// Vercel API wrapper: import compiled app and forward requests
+// Vercel API wrapper: import compiled app and forward requests to Nest app
 const mod = require('../dist/main');
-const handler = mod.default || mod;
+const vercelHandler = mod.default;
 
 module.exports = async (req, res) => {
   try {
-    return await handler(req, res);
+    return await vercelHandler(req, res);
   } catch (err) {
     console.error('Vercel handler error:', err);
-    res.status(500).send('Internal Server Error');
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal Server Error', message: err.message });
+    }
   }
 };
