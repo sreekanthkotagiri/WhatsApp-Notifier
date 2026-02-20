@@ -15,8 +15,11 @@ async function configureApp() {
   );
 
   const expressApp = app.getHttpAdapter().getInstance();
+  
+  // Handle both application/json and text/plain content types
   expressApp.use(
     express.json({
+      type: ['application/json', 'text/plain', 'application/*+json'],
       verify: (req: any, _res: any, buf: Buffer) => {
         req.rawBody = buf && buf.toString();
       },
