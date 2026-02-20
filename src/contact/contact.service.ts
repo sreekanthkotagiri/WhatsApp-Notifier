@@ -33,14 +33,24 @@ export class ContactService {
       });
 
       if (!tenant) {
-        throw new BadRequestException(
-          `Tenant with ID ${createContactDto.tenantId} not found`,
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${createContactDto.tenantId}'`,
+          },
+        });
       }
 
       // Validate phone number
       if (!createContactDto.phone || createContactDto.phone.trim().length === 0) {
-        throw new BadRequestException('Phone number is required');
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_INVALID_INPUT',
+            message: 'Phone number is required',
+          },
+        });
       }
 
       // Check if contact with same phone already exists for this tenant
@@ -106,7 +116,13 @@ export class ContactService {
       });
 
       if (!tenant) {
-        throw new NotFoundException(`Tenant with ID ${tenantId} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${tenantId}'`,
+          },
+        });
       }
 
       const contacts = await this.contactRepository.find({
@@ -129,7 +145,13 @@ export class ContactService {
       const contact = await this.contactRepository.findOne({ where: { id } });
 
       if (!contact) {
-        throw new NotFoundException(`Contact with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Contact not found: ID '${id}'`,
+          },
+        });
       }
 
       return this.mapToResponseDto(contact);
@@ -149,7 +171,13 @@ export class ContactService {
       const contact = await this.contactRepository.findOne({ where: { id } });
 
       if (!contact) {
-        throw new NotFoundException(`Contact with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Contact not found: ID '${id}'`,
+          },
+        });
       }
 
       if (updateContactDto.name !== undefined) {
@@ -179,7 +207,13 @@ export class ContactService {
       const contact = await this.contactRepository.findOne({ where: { id } });
 
       if (!contact) {
-        throw new NotFoundException(`Contact with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Contact not found: ID '${id}'`,
+          },
+        });
       }
 
       await this.contactRepository.remove(contact);

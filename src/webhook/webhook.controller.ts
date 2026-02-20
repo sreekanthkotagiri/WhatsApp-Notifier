@@ -24,7 +24,7 @@ export class WebhookController {
   @Post()
   receive(@Body() body: any, @Res() res: Response) {
     console.log('WEBHOOK HIT');
-    console.log(JSON.stringify(body, null, 2));
+    // console.log(JSON.stringify(body, null, 2));
 
     // Immediately respond
     res.sendStatus(200);

@@ -1,7 +1,8 @@
 export class SendMessageDto {
   tenantId!: string;
   contactId!: string;
-  message!: string;
+  template_name!: string;
+  language?: string; // Optional, defaults to 'en'
   type?: 'text' | 'template' | 'image' | 'doc';
   metadata?: Record<string, any>;
 }

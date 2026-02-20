@@ -1,4 +1,5 @@
 export class SendMessageDto {
+  tenant_id!: string;
   to!: string;
-  message!: string;
+  template_name!: string;
 }

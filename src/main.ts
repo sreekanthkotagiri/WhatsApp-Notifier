@@ -15,8 +15,11 @@ async function configureApp() {
   );
 
   const expressApp = app.getHttpAdapter().getInstance();
+  
+  // Handle both application/json and text/plain content types
   expressApp.use(
     express.json({
+      type: ['application/json', 'text/plain', 'application/*+json'],
       verify: (req: any, _res: any, buf: Buffer) => {
         req.rawBody = buf && buf.toString();
       },
@@ -41,11 +44,14 @@ if (!isLambda) {
 
 
 // Vercel expects a default export of a function with signature (req, res)
-let cachedVercelApp: any = null;
+let cachedApp: any = null;
 export default async function vercelHandler(req: any, res: any) {
-  if (!cachedVercelApp) {
-    const { expressApp } = await configureApp();
-    cachedVercelApp = expressApp;
+  if (!cachedApp) {
+    const { app } = await configureApp();
+    // Initialize the Nest app
+    await app.init();
+    cachedApp = app;
   }
-  return cachedVercelApp(req, res);
+  // Use the Express adapter to handle the request
+  return cachedApp.getHttpAdapter().getInstance()(req, res);
 }

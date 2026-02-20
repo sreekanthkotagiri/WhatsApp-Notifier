@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { WhatsAppModule } from './whatsapp/whatsapp.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { TenantModule } from './tenant/tenant.module';
 import { ContactModule } from './contact/contact.module';
@@ -12,18 +11,15 @@ import { MessageModule } from './message/message.module';
 import { TemplateModule } from './template/template.module';
 import { AutomationController } from './automation.controller';
 import { getDatabaseConfig } from './config/database.config';
+import { WhatsAppModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['src/.env', '.env'],
     }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        getDatabaseConfig(configService),
-    }),
+    TypeOrmModule.forRoot(getDatabaseConfig()),
     TenantModule,
     ContactModule,
     ConversationModule,

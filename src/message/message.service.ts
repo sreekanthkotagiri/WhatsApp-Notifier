@@ -43,9 +43,13 @@ export class MessageService {
       });
 
       if (!tenant) {
-        throw new BadRequestException(
-          `Tenant with ID ${sendMessageDto.tenantId} not found`,
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${sendMessageDto.tenantId}'`,
+          },
+        });
       }
 
       // Validate contact exists and belongs to tenant
@@ -57,14 +61,24 @@ export class MessageService {
       });
 
       if (!contact) {
-        throw new BadRequestException(
-          `Contact with ID ${sendMessageDto.contactId} not found for this tenant`,
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Contact not found: ID '${sendMessageDto.contactId}' (tenant: '${sendMessageDto.tenantId}')`,
+          },
+        });
       }
 
-      // Validate message content
-      if (!sendMessageDto.message || sendMessageDto.message.trim().length === 0) {
-        throw new BadRequestException('Message content is required');
+      // Validate template name
+      if (!sendMessageDto.template_name || sendMessageDto.template_name.trim().length === 0) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_INVALID_INPUT',
+            message: 'Template name is required',
+          },
+        });
       }
 
       // Find or create conversation
@@ -94,9 +108,13 @@ export class MessageService {
         contact_id: sendMessageDto.contactId,
         channel: 'whatsapp',
         direction: 'outbound',
-        type: sendMessageDto.type || 'text',
-        content: sendMessageDto.message,
-        metadata: sendMessageDto.metadata || null,
+        type: sendMessageDto.type || 'template',
+        content: sendMessageDto.template_name,
+        metadata: {
+          ...(sendMessageDto.metadata || {}),
+          template_name: sendMessageDto.template_name,
+          language: sendMessageDto.language || 'en_US',
+        },
         status: 'queued',
       });
 
@@ -112,7 +130,8 @@ export class MessageService {
         
         const whatsappResponse = await this.whatsAppService.sendMessage({
           to: contact.phone,
-          message: sendMessageDto.message,
+          template_name: sendMessageDto.template_name,
+          tenant_id: sendMessageDto.tenantId,
         });
 
         // Update message status to 'sent' and store external message ID
@@ -160,9 +179,13 @@ export class MessageService {
       });
 
       if (!message) {
-        throw new NotFoundException(
-          `Message with ID ${messageId} not found`,
-        );
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Message not found: ID '${messageId}'`,
+          },
+        });
       }
 
       message.status = status;
@@ -241,9 +264,13 @@ export class MessageService {
       });
 
       if (!message) {
-        throw new NotFoundException(
-          `Message with ID ${id} not found`,
-        );
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Message not found: ID '${id}'`,
+          },
+        });
       }
 
       return this.mapToResponseDto(message);
