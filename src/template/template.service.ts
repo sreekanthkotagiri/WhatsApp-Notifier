@@ -308,6 +308,31 @@ export class TemplateService {
   }
 
   /**
+   * Get template by name and tenant ID
+   */
+  async getByNameAndTenant(
+    tenantId: string,
+    templateName: string,
+    language: string = 'en_US',
+  ): Promise<Template> {
+    const template = await this.templateRepository.findOne({
+      where: {
+        tenant_id: tenantId,
+        name: templateName,
+        language,
+      },
+    });
+
+    if (!template) {
+      throw new NotFoundException(
+        `Template "${templateName}" with language "${language}" not found for tenant ${tenantId}`,
+      );
+    }
+
+    return template;
+  }
+
+  /**
    * Sync system templates to a tenant
    */
   async syncTemplates(

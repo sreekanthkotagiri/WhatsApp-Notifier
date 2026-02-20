@@ -1,18 +1,22 @@
-import { Injectable, BadRequestException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, InternalServerErrorException, Inject } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { AxiosResponse } from 'axios';
+import { TemplateService } from '../template/template.service';
 
 @Injectable()
 export class WhatsAppService {
   private readonly logger = new Logger(WhatsAppService.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject(TemplateService) private readonly templateService: TemplateService,
+  ) {}
 
   async sendMessage(sendMessageDto: SendMessageDto): Promise<MessageResponseDto> {
-    const { to, message } = sendMessageDto;
+    const { to, template_name, tenant_id } = sendMessageDto;
 
     if (!this.isValidE164Phone(to)) {
       throw new BadRequestException({
@@ -24,18 +28,34 @@ export class WhatsAppService {
       });
     }
 
-    if (!message || message.trim().length === 0) {
+    if (!template_name || template_name.trim().length === 0) {
       throw new BadRequestException({
         success: false,
         error: {
-          code: 'EMPTY_MESSAGE',
-          message: 'Message must not be empty',
+          code: 'EMPTY_TEMPLATE_NAME',
+          message: 'Template name must not be empty',
+        },
+      });
+    }
+
+    if (!tenant_id || tenant_id.trim().length === 0) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'EMPTY_TENANT_ID',
+          message: 'Tenant ID must not be empty',
         },
       });
     }
 
     try {
-      const response = await this.callWhatsAppAPI(to, message);
+      // Fetch template from database
+      const template = await this.templateService.getByNameAndTenant(
+        tenant_id,
+        template_name,
+      );
+
+      const response = await this.callWhatsAppAPI(to, template_name);
 
       return {
         success: true,
@@ -70,17 +90,20 @@ export class WhatsAppService {
     const payload = {
       messaging_product: 'whatsapp',
       to: to.replace('+', ''), // WhatsApp API requires number without +
-      type: 'text',
-      text: {
-        body: message,
-      },
+      type: "template",
+      template: {
+        name: "hello_world",
+        language: {
+            code: "en_US"
+        }
+    }
     };
     const headers = {
       Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
       'Content-Type': 'application/json',
     };
 
-    this.logger.log(`Sending WhatsApp message to ${to}`);
+    this.logger.log(`Sending WhatsApp message : ${JSON.stringify(payload)}`);
 
     const response = await firstValueFrom(
       this.httpService.post<any>(url, payload, { headers }),

@@ -62,9 +62,9 @@ export class MessageService {
         );
       }
 
-      // Validate message content
-      if (!sendMessageDto.message || sendMessageDto.message.trim().length === 0) {
-        throw new BadRequestException('Message content is required');
+      // Validate template name
+      if (!sendMessageDto.template_name || sendMessageDto.template_name.trim().length === 0) {
+        throw new BadRequestException('Template name is required');
       }
 
       // Find or create conversation
@@ -94,9 +94,13 @@ export class MessageService {
         contact_id: sendMessageDto.contactId,
         channel: 'whatsapp',
         direction: 'outbound',
-        type: sendMessageDto.type || 'text',
-        content: sendMessageDto.message,
-        metadata: sendMessageDto.metadata || null,
+        type: sendMessageDto.type || 'template',
+        content: sendMessageDto.template_name,
+        metadata: {
+          ...(sendMessageDto.metadata || {}),
+          template_name: sendMessageDto.template_name,
+          language: sendMessageDto.language || 'en_US',
+        },
         status: 'queued',
       });
 
@@ -112,7 +116,8 @@ export class MessageService {
         
         const whatsappResponse = await this.whatsAppService.sendMessage({
           to: contact.phone,
-          message: sendMessageDto.message,
+          template_name: sendMessageDto.template_name,
+          tenant_id: sendMessageDto.tenantId,
         });
 
         // Update message status to 'sent' and store external message ID
