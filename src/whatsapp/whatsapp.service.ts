@@ -75,7 +75,6 @@ export class WhatsAppService {
         body: message,
       },
     };
-    this.logger.log(`**************: ${process.env.WHATSAPP_ACCESS_TOKEN}    ${process.env.WHATSAPP_PHONE_NUMBER_ID}}`);
     const headers = {
       Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
       'Content-Type': 'application/json',
