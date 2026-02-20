@@ -16,7 +16,13 @@ export class TenantService {
   async create(createTenantDto: CreateTenantDto): Promise<TenantResponseDto> {
     try {
       if (!createTenantDto.name || createTenantDto.name.trim().length === 0) {
-        throw new BadRequestException('Tenant name is required');
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_INVALID_INPUT',
+            message: 'Tenant name is required',
+          },
+        });
       }
 
       const tenant = this.tenantRepository.create({
@@ -49,7 +55,13 @@ export class TenantService {
       const tenant = await this.tenantRepository.findOne({ where: { id } });
 
       if (!tenant) {
-        throw new NotFoundException(`Tenant with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${id}'`,
+          },
+        });
       }
 
       return this.mapToResponseDto(tenant);
@@ -64,7 +76,13 @@ export class TenantService {
       const tenant = await this.tenantRepository.findOne({ where: { id } });
 
       if (!tenant) {
-        throw new NotFoundException(`Tenant with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${id}'`,
+          },
+        });
       }
 
       if (updateTenantDto.name) {
@@ -89,7 +107,13 @@ export class TenantService {
       const tenant = await this.tenantRepository.findOne({ where: { id } });
 
       if (!tenant) {
-        throw new NotFoundException(`Tenant with ID ${id} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${id}'`,
+          },
+        });
       }
 
       await this.tenantRepository.remove(tenant);

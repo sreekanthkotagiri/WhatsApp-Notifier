@@ -42,9 +42,13 @@ export class ConversationService {
       });
 
       if (!tenant) {
-        throw new BadRequestException(
-          `Tenant with ID ${createConversationDto.tenantId} not found`,
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${createConversationDto.tenantId}'`,
+          },
+        });
       }
 
       // Validate contact exists and belongs to tenant
@@ -56,9 +60,13 @@ export class ConversationService {
       });
 
       if (!contact) {
-        throw new BadRequestException(
-          `Contact with ID ${createConversationDto.contactId} not found for this tenant`,
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Contact not found: ID '${createConversationDto.contactId}' (tenant: '${createConversationDto.tenantId}')`,
+          },
+        });
       }
 
       // Check if conversation already exists
@@ -105,7 +113,13 @@ export class ConversationService {
       });
 
       if (!tenant) {
-        throw new NotFoundException(`Tenant with ID ${tenantId} not found`);
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Tenant not found: ID '${tenantId}'`,
+          },
+        });
       }
 
       const conversations = await this.conversationRepository.find({
@@ -136,9 +150,13 @@ export class ConversationService {
       });
 
       if (!conversation) {
-        throw new NotFoundException(
-          `Conversation with ID ${conversationId} not found`,
-        );
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Conversation not found: ID '${conversationId}'`,
+          },
+        });
       }
 
       const messages = await this.messageRepository.find({
@@ -172,9 +190,13 @@ export class ConversationService {
       });
 
       if (!conversation) {
-        throw new NotFoundException(
-          `Conversation with ID ${id} not found`,
-        );
+        throw new NotFoundException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_NOT_FOUND',
+            message: `Conversation not found: ID '${id}'`,
+          },
+        });
       }
 
       return this.mapToResponseDto(conversation);

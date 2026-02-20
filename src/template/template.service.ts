@@ -206,12 +206,24 @@ export class TemplateService {
       where: { id: tenantId },
     });
     if (!tenant) {
-      throw new NotFoundException(`Tenant with ID ${tenantId} not found`);
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Tenant not found: ID '${tenantId}'`,
+        },
+      });
     }
 
     // Validate required fields
     if (!name) {
-      throw new BadRequestException('name is required');
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_INVALID_INPUT',
+          message: 'Template name is required',
+        },
+      });
     }
 
     const finalLanguage = language || 'en';
@@ -226,9 +238,13 @@ export class TemplateService {
     });
 
     if (existingTemplate) {
-      throw new BadRequestException(
-        `Template with name "${name}" and language "${finalLanguage}" already exists for this tenant`,
-      );
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_DUPLICATE',
+          message: `Template with name "${name}" and language "${finalLanguage}" already exists for this tenant`,
+        },
+      });
     }
 
     const template = this.templateRepository.create({
@@ -262,7 +278,13 @@ export class TemplateService {
       where: { id: tenantId },
     });
     if (!tenant) {
-      throw new NotFoundException(`Tenant with ID ${tenantId} not found`);
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Tenant not found: ID '${tenantId}'`,
+        },
+      });
     }
 
     const query = this.templateRepository
@@ -299,9 +321,13 @@ export class TemplateService {
     });
 
     if (!template) {
-      throw new NotFoundException(
-        `Template with ID ${templateId} not found`,
-      );
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Template not found: ID '${templateId}'`,
+        },
+      });
     }
 
     return this.mapToResponseDto(template);
@@ -324,9 +350,13 @@ export class TemplateService {
     });
 
     if (!template) {
-      throw new NotFoundException(
-        `Template "${templateName}" with language "${language}" not found for tenant ${tenantId}`,
-      );
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Template not found: name '${templateName}' (language: '${language}', tenant: '${tenantId}')`,
+        },
+      });
     }
 
     return template;
@@ -345,7 +375,13 @@ export class TemplateService {
       where: { id: tenantId },
     });
     if (!tenant) {
-      throw new NotFoundException(`Tenant with ID ${tenantId} not found`);
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Tenant not found: ID '${tenantId}'`,
+        },
+      });
     }
 
     let templatesToSync = SYSTEM_TEMPLATES;
@@ -406,9 +442,13 @@ export class TemplateService {
     });
 
     if (!template) {
-      throw new NotFoundException(
-        `Template with ID ${templateId} not found`,
-      );
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Template not found: ID '${templateId}'`,
+        },
+      });
     }
 
     const { name, category, language, components, status } = updateTemplateDto;
@@ -432,9 +472,13 @@ export class TemplateService {
     if (status) {
       // Validate status value
       if (!['approved', 'rejected', 'pending'].includes(status)) {
-        throw new BadRequestException(
-          'status must be one of: approved, rejected, pending',
-        );
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'DB_ERROR_INVALID_INPUT',
+            message: 'status must be one of: approved, rejected, pending',
+          },
+        });
       }
       template.status = status;
     }
@@ -454,9 +498,13 @@ export class TemplateService {
     });
 
     if (!template) {
-      throw new NotFoundException(
-        `Template with ID ${templateId} not found`,
-      );
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'DB_ERROR_NOT_FOUND',
+          message: `Template not found: ID '${templateId}'`,
+        },
+      });
     }
 
     await this.templateRepository.remove(template);
